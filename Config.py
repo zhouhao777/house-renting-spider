@@ -1,11 +1,12 @@
 # coding=utf-8
-import ConfigParser
+import configparser
+import os
 
 
 class Config(object):
     def __init__(self, config_file_name):
-        self.cf = ConfigParser.ConfigParser()
-        self.cf.read(config_file_name) # read(filename) 直接读取ini文件内容
+        self.cf = configparser.ConfigParser()
+        self.cf.read(config_file_name, 'utf8')  # read(filename) 直接读取ini文件内容
 
         key_list = self.cf.get('common', 'key_search_word_list').split(',') # get(section,option) 得到section中option的值，返回为string类型
         custom_black_list = self.cf.get('common', 'custom_black_list').split(',')
@@ -34,3 +35,9 @@ python-ConfigParser模块【读写配置文件】
 -set( section, option, value) 对section中的option进行设置
 
 """
+
+if __name__ == "__main__":
+    this_file_dir = os.path.split(os.path.realpath(__file__))[0]
+    config_file_path = os.path.join(this_file_dir, 'config.ini')
+    config = Config(config_file_path)
+

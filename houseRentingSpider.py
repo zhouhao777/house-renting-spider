@@ -57,9 +57,10 @@ class Main(object):
         }
 
     def run(self):
-        result_file_name = 'results/result_' + str(spider.file_time)
+        # result_file_name = 'results/result_' + str(spider.file_time)
+        result_file_name = 'results/result'
         try:
-            print 'Connecting database...  打开数据库...'
+            print('Connecting database...  打开数据库...')
             # creat database
             conn = sqlite3.connect(result_file_name + '.sqlite')
             conn.text_factory = str
@@ -76,21 +77,20 @@ class Main(object):
 
             def urlList(page_number):
                 num_in_url = str(page_number * 50)
-                douban_url = ['https://www.douban.com/group/search?start=' + num_in_url +'&group=146409&cat=1013&sort=time&q=',
-                              'https://www.douban.com/group/search?start=' + num_in_url +'&group=523355&cat=1013&sort=time&q=',
-                              'https://www.douban.com/group/search?start=' + num_in_url +'&group=557646&cat=1013&sort=time&q=',
-                              'https://www.douban.com/group/search?start=' + num_in_url +'&group=383972&cat=1013&sort=time&q=',
-                              'https://www.douban.com/group/search?start=' + num_in_url +'&group=283855&cat=1013&sort=time&q=',
-                              'https://www.douban.com/group/search?start=' + num_in_url +'&group=76231&cat=1013&sort=time&q=',
-                              'https://www.douban.com/group/search?start=' + num_in_url +'&group=196844&cat=1013&sort=time&q=',
-                              'https://www.douban.com/group/search?start=' + num_in_url +'&group=259227&cat=1013&sort=time&q=']
+                douban_url = ['https://www.douban.com/group/search?start=' + num_in_url +'&group=26926&cat=1013&sort=time&q=',
+                              'https://www.douban.com/group/search?start=' + num_in_url +'&group=opking&cat=1013&sort=time&q=',
+                              # 'https://www.douban.com/group/search?start=' + num_in_url +'&group=257523&cat=1013&sort=time&q=',
+                              # 'https://www.douban.com/group/search?start=' + num_in_url +'&group=276176&cat=1013&sort=time&q=',
+                              # 'https://www.douban.com/group/search?start=' + num_in_url +'&group=zhufang&cat=1013&sort=time&q=',
+                              'https://www.douban.com/group/search?start=' + num_in_url +'&group=252218&cat=1013&sort=time&q=',
+                              'https://www.douban.com/group/search?start=' + num_in_url +'&group=279962&cat=1013&sort=time&q=']
                 return douban_url
-            douban_url_name = [u'上海租房', u'上海招聘，租房', u'上海租房(2)', u'上海合租族_魔都租房', u'上海租房@浦东租房', \
-                               u'上海租房---房子是租来的，生活不是', u'上海租房@长宁租房/徐汇/静安租房', u'上海租房（不良中介勿扰）']
+            douban_url_name = [u'上海租房', u'北京招聘，租房', u'北京租房(2)', u'北京合租族_魔都租房', u'北京租房@浦东租房', \
+                               u'北京租房---房子是租来的，生活不是', u'北京租房@长宁租房/徐汇/静安租房', u'北京租房（不良中介勿扰）']
 
             def crawl(i, douban_url, keyword, douban_headers):
                 url_link = douban_url[i] + keyword
-                print 'url_link: ', url_link
+                print('url_link: ', url_link)
                 r = requests.get(url_link, headers=douban_headers)
                 if r.status_code == 200:
                     try:
@@ -133,36 +133,36 @@ class Main(object):
                                             [title_text, link_text, Utils.getTimeFromStr(time_text),
                                              datetime.datetime.now(), keyword,
                                              douban_url_name[i], reply_count])
-                                        print 'add new data:', title_text, time_text, reply_count, link_text, keyword
-                                    except sqlite3.Error, e:
-                                        print 'data exists:', title_text, link_text, e # URL should be unique
-                            except Exception, e:
-                                print 'error match table:', e
-                    except Exception, e:
-                        print 'error match paginator:', e
+                                        print('add new data:', title_text, time_text, reply_count, link_text, keyword)
+                                    except sqlite3.Error as e:
+                                        print('data exists:', title_text, link_text, e) # URL should be unique
+                            except Exception as e:
+                                print('error match table:', e)
+                    except Exception as e:
+                        print('error match paginator:', e)
                         spider.ok = False
                         return False
                 else:
-                    print 'request url error %s -status code: %s:' % (url_link, r.status_code)
+                    print('request url error %s -status code: %s:' % (url_link, r.status_code))
                 time.sleep(self.config.douban_sleep_time)
 
 
-            print 'The spider begins to work...  爬虫开始运行...'
+            print('The spider begins to work...  爬虫开始运行...')
 
             douban_url = urlList(0)
             for i in range(len(douban_url)):
                 page_number = 0
 
-                print 'start i ->',i
+                print('start i ->',i)
                 for j in range(len(search_list)):
                     spider.ok = True
                     page_number = 0
                     keyword = search_list[j]
-                    print 'start i->j %s -> %s %s' %(i, j, keyword)
-                    print '>>>>>>>>>> Search %s  %s ...' % (douban_url_name[i].encode('utf-8'), keyword)
+                    print('start i->j %s -> %s %s' %(i, j, keyword))
+                    print('>>>>>>>>>> Search %s  %s ...' % (douban_url_name[i].encode('utf-8'), keyword))
 
                     while spider.ok:
-                        print 'i, j, page_number: ', i, j, page_number
+                        print('i, j, page_number: ', i, j, page_number)
 
                         douban_url = urlList(page_number)
                         crawl(i, douban_url, keyword, self.douban_headers)
@@ -175,54 +175,54 @@ class Main(object):
             values = cursor.fetchall()
 
             # export to html file
-            print 'The spider has finished working. Now begin to write the data in the result HTML.   爬虫运行结束。开始写入结果文件'
+            print('The spider has finished working. Now begin to write the data in the result HTML.   爬虫运行结束。开始写入结果文件')
 
             file = open(result_file_name + '.html', 'wb')
             with file:
-                file.write('''<html>
+                file.write(('''<html>
                     <head>
                     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-                    <title>上海租房信息 | 豆瓣</title>
+                    <title>北京租房信息 | 豆瓣</title>
                     <link rel="stylesheet" type="text/css" href="../lib/resultPage.css">
                     </head>
-                    <body>''')
-                file.write('<h1>Shanghai Renting Information 上海租房信息 | </h1>')
-                file.write('''
+                    <body>''').encode())
+                file.write(('<h1>Shanghai Renting Information 北京租房信息 | </h1>').encode())
+                file.write(('''
                     <a href="https://www.douban.com/" target="_black">
                     <img src="https://img3.doubanio.com/f/shire/8977fa054324c4c7f565447b003ebf75e9b4f9c6/pics/nav/lg_main@2x.png" alt="豆瓣icon"/>
                     </a>
-                    ''')
-                file.write('<table>')
-                file.write(
-                    '<tr><th>Index<br>索引</th><th>Title<br>标题</th><th>Posting Time<br>发帖时间</th><th>Scrawling Time<br>抓取时间</th><th>Keyword<br>关键字</th><th>Group<br>来源</th><th>Number of reply<br>回复数</th></tr>')
+                    ''').encode())
+                file.write(('<table>').encode())
+                file.write((
+                    '<tr><th>Index<br>索引</th><th>Title<br>标题</th><th>Posting Time<br>发帖时间</th><th>Scrawling Time<br>抓取时间</th><th>Keyword<br>关键字</th><th>Group<br>来源</th><th>Number of reply<br>回复数</th></tr>').encode())
 
                 for row in values:
-                    file.writelines('<tr>')
+                    file.write('<tr>'.encode())
                     for i in range(len(row)):
                         if i == 2:
                             i += 1
                             continue
-                        file.write('<td class="column%s">' % str(i))
+                        file.write(('<td class="column%s">' % str(i)).encode())
                         if i == 1:
-                            file.write('<a href="' + str(row[2]) + '" target="_black">' + str(row[1]) + '</a>')
+                            file.write(('<a href="' + str(row[2]) + '" target="_black">' + str(row[1]) + '</a>').encode())
                             i += 1
                             continue
-                        file.write(str(row[i]))
+                        file.write(str(row[i]).encode())
                         i += 1
-                        file.write('</td>')
-                    file.write('</tr>')
-                file.write('</table>')
-                file.write('<script type="text/javascript" src="../lib/resultPage.js"></script>')
-                file.write('</body></html>')
+                        file.write('</td>'.encode())
+                    file.write('</tr>'.encode())
+                file.write('</table>'.encode())
+                file.write('<script type="text/javascript" src="../lib/resultPage.js"></script>'.encode())
+                file.write('</body></html>'.encode())
             cursor.close()
-        except Exception, e:
-            print 'Error:', e.message
+        except Exception as e:
+            print('Error:', e)
         finally:
             conn.commit()
             conn.close()
-            print '=============================================='
-            print 'Finished writing the result HTML. Please open "' + result_file_name + '.html" to check the result'
-            print '结果文件写入完毕。请打开"' + result_file_name + '.html"查看结果。'
+            print('==============================================')
+            print('Finished writing the result HTML. Please open "' + result_file_name + '.html" to check the result')
+            print('结果文件写入完毕。请打开"' + result_file_name + '.html"查看结果。')
 
 
 
